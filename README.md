@@ -214,7 +214,7 @@ Pillow
 
 ---
 
-# Author
+# Developer
 
 Suraj Jagtap  
 > "Train models together, keep data private."
