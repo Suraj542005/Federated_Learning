@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Federated Learning Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="/static/style.css">
+
+</head>
+
+<body>
+
+<h1>Federated Learning Dashboard</h1>
+
+<div class="status">
+
+<div>Server Status: <span id="server"></span></div>
+<div>Round: <span id="round"></span></div>
+
+</div>
+
+<div class="container">
+
+<div class="graph">
+
+<canvas id="accuracyChart"></canvas>
+
+</div>
+
+<div class="clients">
+
+<h3>Connected Clients</h3>
+
+<ul id="clientList"></ul>
+
+</div>
+
+</div>
+
+<div class="prediction">
+
+<h3>Prediction</h3>
+
+<input type="file" id="imageUpload">
+
+<button onclick="predict()">Predict</button>
+
+<p id="result"></p>
+
+</div>
+
+<script>
+
+async function loadMetrics(){
+
+let res = await fetch('/metrics')
+let data = await res.json()
+
+document.getElementById("server").innerText = data.server
+document.getElementById("round").innerText = data.rounds.length
+
+let clientList = document.getElementById("clientList")
+clientList.innerHTML=""
+
+for (const [key,value] of Object.entries(data.clients)){
+
+let li = document.createElement("li")
+li.innerText = key + " : " + value
+clientList.appendChild(li)
+
+}
+
+chart.data.labels = data.rounds
+chart.data.datasets[0].data = data.accuracy
+chart.update()
+
+}
+
+const ctx = document.getElementById('accuracyChart')
+
+const chart = new Chart(ctx,{
+type:'line',
+data:{
+labels:[],
+datasets:[{
+label:'Accuracy',
+data:[],
+borderColor:'cyan'
+}]
+}
+})
+
+async function predict(){
+
+let file = document.getElementById("imageUpload").files[0]
+
+let form = new FormData()
+form.append("image",file)
+
+let res = await fetch("/predict",{method:"POST",body:form})
+
+let data = await res.json()
+
+document.getElementById("result").innerText = "Predicted Digit : " + data.prediction
+
+}
+
+setInterval(loadMetrics,2000)
+
+</script>
+
+</body>
+
+</html>

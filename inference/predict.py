@@ -13,8 +13,8 @@ x_test = x_test / 255.0
 x_test = x_test[..., None]
 
 # Pick a sample image
-image = x_test[9]
-label = y_test[9]
+image = x_test[2]
+label = y_test[2]
 
 # Predict
 prediction = model.predict(image.reshape(1, 28, 28, 1))
